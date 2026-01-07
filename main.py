@@ -69,9 +69,13 @@ def find_best_cutee(my_scores,features):
 
 # st.set_page_config(page_title="多屬性加分問卷", page_icon="✨", layout="centered")
 
+base_folder = os.path.dirname(os.path.abspath(__file__))
+config_folder = os.path.join(base_folder, "config")
 
-questions = load_json("questions.json")
-default_scores = load_json("attributes.json")
+
+questions = load_json(os.path.join(config_folder, "questions.json"))
+stories = load_json(os.path.join(config_folder, "stories.json"))
+default_scores = load_json(os.path.join(config_folder, "attributes.json"))
 features = list(default_scores.keys())
 
 
@@ -88,6 +92,14 @@ if "scores" not in st.session_state:
 if "answers" not in st.session_state:
     st.session_state.answers = [None] * total_pages
 
+if "user_name" not in st.session_state:
+    st.session_state.user_name = ""
+
+replacements = {
+    "\n\n": "<br>",
+    "\n": "<br>",
+    "XXX": st.session_state.user_name
+}
 
 # === 頁面 0：開始畫面 ===
 
@@ -115,36 +127,73 @@ if "answers" not in st.session_state:
 
 if st.session_state.page == 0:
     st.title("💫 L.M. Live 守護精靈測驗")
-    st.subheader("✨ 誰會成為你的連結者？")
+    # st.subheader("✨ 誰會成為你的連結者？")
     st.write("")
     st.write("L.M. Live 是法文 **Lien Monde Live** 的縮寫，譯「連結世界的直播」。")
     st.write("快來測驗看看 L.M. Live 中，誰最適合你吧！")
     st.markdown("<br>", unsafe_allow_html=True)
+
+    st.session_state.user_name = st.text_input(
+        "該怎麼稱呼你呢？",
+        placeholder="我是誰"
+    )
+
     st.caption("👇點擊下方按鈕開始你的測驗旅程")
 
     if st.button("開始測驗"):
-        st.session_state.page += 1
-
+        if st.session_state.user_name.strip() == "":
+            st.warning("請先輸入名字再開始測驗")
+        else:
+            st.session_state.user_name = st.session_state.user_name.strip()
+            st.session_state.page += 1
 
 # === 問題頁面 ===
 elif 1 <= st.session_state.page <= len(questions):
     q_index = st.session_state.page - 1
     q_data = questions[q_index]
+    a_story = stories[q_index]
 
-    st.header(f"第 {q_index + 1} / {len(questions)} 題")
-    st.subheader(q_data["question"])
+    for old, new in replacements.items():
+        a_story["text"] = a_story["text"].replace(old, new)
 
-    # choice = st.radio(
-    #     "請選擇一個答案：",
-    #     list(q_data["options"].keys()),
-    #     key=f"q_{q_index}"
-    # )
+    st.markdown(
+        f"""
+        <div style="
+            font-size: 16px;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 1.2em;
+        ">
+            {a_story["text"]}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    # # 儲存選擇
-    # if choice:
-    #     st.session_state.answers[q_index] = q_data["options"][choice]
+    # 淡淡的滿版分隔線
+    st.markdown(
+        """
+        <div style="
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(
+                to right,
+                rgba(0,0,0,0),
+                rgba(0,0,0,0.15),
+                rgba(0,0,0,0)
+            );
+            margin: 1.2em 0 1em 0;
+        "></div>
+        """,
+        unsafe_allow_html=True
+    )
 
-    selected = st.radio("請選擇：", list(q_data["options"].keys()), index=None, key=f"q{st.session_state.page}")
+    st.caption(f"第 {q_index + 1} / {len(questions)} 題")
+    st.markdown(f"**{q_data['question']}**")
+
+
+    selected = st.radio("",list(q_data["options"].keys()), index=None, key=f"q{st.session_state.page}",label_visibility="collapsed")
+    
     # 算分
     col1, col2 = st.columns(2)
     with col1:
@@ -152,7 +201,6 @@ elif 1 <= st.session_state.page <= len(questions):
     with col2:
         next_clicked = st.button("下一題", disabled=(selected is None))
 
-    st.write("page",st.session_state.page)
     # 處理按鈕事件
     if next_clicked and selected:
     # 撤銷上一個選項的分數（若有）
@@ -185,14 +233,26 @@ elif 1 <= st.session_state.page <= len(questions):
 
 
 # === 結果頁 ===
-elif st.session_state.page == len(questions) + 1:
-    st.title("🌟 結果頁 🌟")
-    st.write("根據你的選擇，我們計算出以下屬性分數：")
+elif st.session_state.page == len(stories):
+    q_index = st.session_state.page - 1
+    a_story = stories[q_index]
 
-    print("測驗分數", st.session_state.scores)
+    for old, new in replacements.items():
+        a_story["text"] = a_story["text"].replace(old, new)
 
-# -----------------------------------------------------------------------------------------
-
+    st.markdown(
+        f"""
+        <div style="
+            font-size: 16px;
+            line-height: 1.6;
+            color: #444;
+            margin-bottom: 1.2em;
+        ">
+            {a_story["text"]}
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
     best_cutee, best_row, best_score, recommand_sort = find_best_cutee(st.session_state.scores,features)
     # 轉為 DataFrame
@@ -201,9 +261,9 @@ elif st.session_state.page == len(questions) + 1:
         theta = features + [features[0]]
     )) 
 
-    print("best_row",best_row)
-    print(best_row.values())
-    print(features)
+    # print("best_row",best_row)
+    # print(best_row.values())
+    # print(features)
 
     best_row
     best_df = pd.DataFrame(dict(
@@ -230,18 +290,18 @@ elif st.session_state.page == len(questions) + 1:
     ))
 
     fig.update_layout(
-    title=f'最適合你的人：{best_cutee}（適合度{round(best_score*100,1)}%）<br>其他推薦：{recommand_sort[1]["cutee_name"]}（適合度{round(recommand_sort[1]["suit_score"]*100,1)}%）或 {recommand_sort[2]["cutee_name"]}（適合度{round(recommand_sort[2]["suit_score"]*100,1)}%）',
-    polar=dict(
-        radialaxis=dict(
-            visible=True,
-            range=[0, 5]
+        title=f'最適合你的人：{best_cutee}（適合度{round(best_score*100,1)}%）<br>其他推薦：{recommand_sort[1]["cutee_name"]}（適合度{round(recommand_sort[1]["suit_score"]*100,1)}%）或 {recommand_sort[2]["cutee_name"]}（適合度{round(recommand_sort[2]["suit_score"]*100,1)}%）',
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+                range=[0, 5]
+            ),
+            angularaxis=dict(
+                rotation=90  # 這裡調整角度
+            )
         ),
-        angularaxis=dict(
-            rotation=90  # 這裡調整角度
-        )
-    ),
-    showlegend=True
-)
+        showlegend=True
+    )
     st.plotly_chart(fig)
 
 # -----------------------------------------------------------------------------------------
