@@ -66,13 +66,8 @@ def img_to_base64(path):
         return base64.b64encode(f.read()).decode()
 
 def fig_to_base64(fig):
-    img_bytes = pio.to_image(
-        fig,
-        format="png",
-        scale=2,
-        engine="kaleido"  # 明確指定
-    )
-    return base64.b64encode(img_bytes).decode("utf-8")
+    svg_bytes = fig.to_image(format="svg")
+    return base64.b64encode(svg_bytes).decode("utf-8")
 
 def normalize_group_scores(group_scores, group_config):
     normalized = {}
