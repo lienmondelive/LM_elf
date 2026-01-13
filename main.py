@@ -2,6 +2,7 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 import csv
+import plotly.io as pio
 import plotly.express as px
 import plotly.graph_objects as go
 import numpy as np
@@ -9,6 +10,23 @@ import json
 import os
 import base64
 from io import BytesIO
+
+def go_next(selected, q_data):
+    page = st.session_state.page
+
+    # 撤銷上一題分數
+    prev_answer = st.session_state.answers[page]
+    if prev_answer is not None:
+        for attr, val in q_data["options"][prev_answer].items():
+            st.session_state.scores[attr] -= val
+
+    # 加上新分數
+    st.session_state.answers[page] = selected
+    for attr, val in q_data["options"][selected].items():
+        st.session_state.scores[attr] += val
+
+    # 換頁
+    st.session_state.page += 1
 
 @st.cache_data
 def load_json(filename):
@@ -48,9 +66,13 @@ def img_to_base64(path):
         return base64.b64encode(f.read()).decode()
 
 def fig_to_base64(fig):
-    buf = BytesIO()
-    fig.write_image(buf, format="png", scale=2)
-    return base64.b64encode(buf.getvalue()).decode()
+    img_bytes = pio.to_image(
+        fig,
+        format="png",
+        scale=2,
+        engine="kaleido"  # 明確指定
+    )
+    return base64.b64encode(img_bytes).decode("utf-8")
 
 def normalize_group_scores(group_scores, group_config):
     normalized = {}
@@ -305,6 +327,7 @@ if st.session_state.page == 0:
         else:
             st.session_state.user_name = st.session_state.user_name.strip()
             st.session_state.page += 1
+            st.rerun()
 
 
 # === 問題頁面 ===
@@ -485,36 +508,27 @@ elif 1 <= st.session_state.page <= len(questions):
             st.session_state.result_ready = True
             st.session_state.is_calculating = False
     
-    # 算分
     col1, col2 = st.columns(2)
     with col1:
-        prev_clicked = st.button("上一題", disabled=(st.session_state.page == 0) or (st.session_state.is_calculating or st.session_state.result_ready))
+        st.button(
+            "上一題",
+            disabled=(
+                st.session_state.page == 0
+                or st.session_state.is_calculating
+                or st.session_state.result_ready
+            ),
+            on_click=lambda: setattr(
+                st.session_state, "page", st.session_state.page - 1
+            )
+        )
+
     with col2:
-        next_clicked = st.button("下一題", disabled=(selected is None))
-
-    # 處理按鈕事件
-    if next_clicked and selected:
-    # 撤銷上一個選項的分數（若有）
-        prev_answer = st.session_state.answers[st.session_state.page]
-        if prev_answer is not None:
-            for attr, val in q_data["options"][prev_answer].items():
-                st.session_state.scores[attr] -= val
-
-    # 更新答案並加入新分數
-        st.session_state.answers[st.session_state.page] = selected
-        for attr, val in q_data["options"][selected].items():
-            st.session_state.scores[attr] += val
-
-    # 換頁
-        if st.session_state.result_ready:
-            st.markdown("傳送回家中......")
-            st.session_state.page += 1
-            st.rerun()
-        else:
-            st.session_state.page += 1
-
-    elif prev_clicked:
-        st.session_state.page -= 1
+        st.button(
+            "下一題",
+            disabled=(selected is None),
+            on_click=go_next,
+            args=(selected, q_data)
+        )
 
 
 # === 結果頁 ===
