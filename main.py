@@ -452,12 +452,12 @@ elif 1 <= st.session_state.page <= len(questions):
             ))
 
             fig.update_layout(
-                width=900,
-                height=900,
+                width=420,
+                height=420,
                 paper_bgcolor="rgba(0,0,0,0)",
                 plot_bgcolor="rgba(0,0,0,0)",
                 legend=dict(
-                    font=dict(size=25, color="#222"),
+                    font=dict(size=15, color="#222"),
                     orientation="h",
                     yanchor="bottom",
                     y=1.35,          # ⭐ 拉到圖外
@@ -477,7 +477,7 @@ elif 1 <= st.session_state.page <= len(questions):
                         rotation=90,
                         showticklabels=True,         # ⭐ 關掉屬性文字
                         tickfont=dict(
-                            size=30,            # ⭐ 屬性名稱字體大小
+                            size=18,            # ⭐ 屬性名稱字體大小
                             color="#222",
                             family="Noto Sans TC SemiBold, Noto Sans TC, Arial"
                         )
@@ -494,8 +494,8 @@ elif 1 <= st.session_state.page <= len(questions):
 
 
             # 圖片 base64
-            st.session_state.radar_base64 = fig_to_base64(fig)
-            
+            # st.session_state.radar_base64 = fig_to_base64(fig)
+            st.session_state.radar_fig = fig
             st.session_state.result_base64 = img_to_base64(os.path.join("pictures", "result.png"))
             elf_path = os.path.join("pictures/elfs", f"{best_elf}.png")
             # elf_path = f"pictures/elfs/{best_elf}.png"
@@ -588,7 +588,10 @@ elif st.session_state.page == len(stories):
                 st.markdown("⏳ 正在打開測驗結果......")
                 st.session_state.show_result = True
 
-
+    radar_html = st.session_state.radar_fig.to_html(
+        include_plotlyjs="cdn",
+        full_html=False
+    )
     if st.session_state.show_result:
         result_placeholder.empty()
 
@@ -836,14 +839,21 @@ elif st.session_state.page == len(stories):
                     </div>
                         
                     <!-- 雷達圖 -->
-                    <img src="data:image/png;base64,{st.session_state.radar_base64}"
-                        style="
-                            position:absolute;
-                            bottom:15%;
-                            left:40%;
-                            width:58%;
-                            z-index: 2;
-                        ">
+                    <div style="
+                        position:absolute;
+                        bottom:3%;
+                        left:37%;
+                        width:58%;
+                        max-width:420px;   /* ⭐ 關鍵 */
+                        transform: scale(0.9);       /* ⭐ 微調 */
+                        transform-origin: center;
+                        z-index:2;
+                        overflow: visible;
+                    ">
+                        {radar_html}
+                    </div>
+
+                    
 
                     <!-- 精靈圖片 -->
                     <img src="data:image/png;base64,{st.session_state.elf_base64}"
@@ -859,7 +869,7 @@ elif st.session_state.page == len(stories):
                     <div style="
                         position:absolute;
                         top:45%;
-                        right:-5%;
+                        right:-6%;
                         width:50%;
                         font-size:24px;
                         line-height:1.6;
@@ -872,7 +882,7 @@ elif st.session_state.page == len(stories):
                     <div style="
                         position:absolute;
                         top:49%;
-                        right:-5%;
+                        right:-6%;
                         width:50%;
                         font-size:18px;
                         line-height:1.6;
@@ -885,7 +895,7 @@ elif st.session_state.page == len(stories):
                     <div style="
                         position:absolute;
                         bottom:6%;
-                        right:40%;
+                        right:38%;
                         display:flex;
                         gap:18px;
                         z-index:5;
@@ -899,7 +909,7 @@ elif st.session_state.page == len(stories):
                     <div style="
                         position:absolute;
                         bottom:6%;
-                        right:28%;
+                        right:26%;
                         display:flex;
                         gap:18px;
                         z-index:5;
@@ -913,7 +923,7 @@ elif st.session_state.page == len(stories):
                     <div style="
                         position:absolute;
                         bottom:6%;
-                        right:17%;
+                        right:15%;
                         display:flex;
                         gap:18px;
                         z-index:5;
