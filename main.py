@@ -292,10 +292,70 @@ replacements = {
     "XXX": st.session_state.user_name
 }
 
+st.markdown(
+    """
+    <style>
+    /* 告訴手機瀏覽器不要亂反黑圖片 */
+    :root {
+        color-scheme: light;
+    }
+
+    /* 顯示用：深淺色只管文字 */
+    @media (prefers-color-scheme: dark) {
+        .stApp p,
+        .stApp span,
+        .stApp h1,
+        .stApp h2,
+        .stApp h3,
+        .stApp h4,
+        .stApp h5,
+        .stApp h6 {
+            color: #eaeaea;
+        }
+    }
+
+    @media (prefers-color-scheme: light) {
+        .stApp p,
+        .stApp span,
+        .stApp h1,
+        .stApp h2,
+        .stApp h3,
+        .stApp h4,
+        .stApp h5,
+        .stApp h6 {
+            color: #333333;
+        }
+    }
+
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+
 # === 頁面 0：開始畫面 ===
 
 if st.session_state.page == 0:
-    st.title("💫 L.M. Live 守護精靈測驗")
+
+    col_icon, col_title = st.columns([1, 8])
+    logo_image_path = os.path.join("pictures", "LM_logo.png")
+    with col_icon:
+        st.image(logo_image_path, width=100)
+
+    with col_title:
+        st.markdown(
+            """
+            <div style="
+                font-size: 34px;
+                font-weight: 800;
+                margin: 0;
+                line-height: 2;
+            ">
+                L.M. Live 守護精靈測驗
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     # st.subheader("✨ 誰會成為你的連結者？")
     st.write("")
     st.write("L.M. Live 是法文 **Lien Monde Live** 的縮寫，譯「連結世界的直播」。")
@@ -308,8 +368,8 @@ if st.session_state.page == 0:
     )
         
     st.session_state.view_mode = st.radio(
-        "請選擇顯示方式",
-        ["電腦版","手機版"],
+        "請選擇顯示方式（若使用電腦，建議切換至電腦版喔！）",
+        ["手機版","電腦版"],
         index=0,
         horizontal=True
     )
@@ -341,14 +401,18 @@ elif 1 <= st.session_state.page <= len(questions):
 
             st.markdown(
                 f"""
+                <script>
+                    window.scrollTo({{ top: 0, behavior: "instant" }});
+                </script>
+                
                 <div style="
                     font-size: 16px;
                     line-height: 1.6;
-                    color: #444;
                     margin-bottom: 1.2em;
                 ">
                     {text_html}
                 </div>
+
                 """,
                 unsafe_allow_html=True
             )
@@ -558,14 +622,18 @@ elif st.session_state.page == len(stories):
 
             st.markdown(
                 f"""
+                <script>
+                    window.scrollTo({{ top: 0, behavior: "instant" }});
+                </script>
+
                 <div style="
                     font-size: 16px;
                     line-height: 1.6;
-                    color: #444;
                     margin-bottom: 1em;
                 ">
                     {text_html}
                 </div>
+
                 """,
                 unsafe_allow_html=True
             )
@@ -638,65 +706,75 @@ elif st.session_state.page == len(stories):
                 </script>
 
             <style>
-                .result-root {{
-                position: relative;
-                padding: 30px;
-                }}
 
-                .mobile-card {{
-                padding: 20px;
-                text-align: center;
-                font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
-                }}
+                <style>
+                    /* =====================
+                    共用：結果頁疊圖文字
+                    ===================== */
+                    
+                    .result-root {{
+                        position: relative;
+                        padding: 30px;
+                        }}
 
-                .mobile-title {{
-                font-size: 28px;
-                font-weight: 900;
-                margin-bottom: 12px;
-                }}
+                        .mobile-card {{
+                        padding: 20px;
+                        text-align: center;
+                        font-family: -apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif;
+                        }}
 
-                .mobile-name {{
-                font-size: 16px;
-                margin-bottom: 6px;
-                }}
+                        .mobile-title {{
+                        font-size: 28px;
+                        font-weight: 900;
+                        margin-bottom: 12px;
+                        }}
 
-                .mobile-main {{
-                font-size: 18px;
-                font-weight: 800;
-                margin: 14px 0;
-                }}
+                        .mobile-name {{
+                        font-size: 16px;
+                        margin-bottom: 6px;
+                        }}
 
-                .mobile-sub {{
-                font-size: 16px;
-                color: #555;
-                line-height: 1.6;
-                }}
+                        .mobile-main {{
+                        font-size: 18px;
+                        font-weight: 800;
+                        margin: 14px 0;
+                        }}
 
-                .mobile-icons {{
-                margin-top: 20px;
-                display: flex;
-                justify-content: center;
-                gap: 20px;
-                }}
+                        .mobile-sub {{
+                        font-size: 16px;
+                        color: #555;
+                        line-height: 1.6;
+                        }}
 
-                .mobile-elf {{
-                margin: 16px auto;
-                width: 70%;
-                max-width: 320px;
-                }}
+                        .mobile-icons {{
+                        margin-top: 20px;
+                        display: flex;
+                        justify-content: center;
+                        gap: 20px;
+                        }}
 
-                .mobile-elf img {{
-                width: 100%;
-                height: auto;
-                display: block;
-                }}
+                        .mobile-elf {{
+                        margin: 16px auto;
+                        width: 70%;
+                        max-width: 320px;
+                        }}
 
-            </style>
+                        .mobile-elf img {{
+                        width: 100%;
+                        height: auto;
+                        display: block;
+                        }}
+                </style>
+                
 
-            <div class="result-root">
 
             <!-- ===================== 手機版 ===================== -->
-            <div class="mobile-card" id="result-capture">
+            <div id="result-capture" 
+                style="
+                background:#ffffff;
+                color:#000000;
+                    "
+            >
                 <div class="mobile-card">
 
                     <div class="mobile-title">測驗結果</div>
@@ -710,8 +788,10 @@ elif st.session_state.page == len(stories):
 
                     <div class="mobile-name">{elves_info[st.session_state.best_elf]["slogan"]}</div>
 
-                    <div class="mobile-elf">
-                        <img src="data:image/png;base64,{st.session_state.elf_base64}">
+                    <div class="result-root">
+                        <div class="mobile-elf">
+                            <img src="data:image/png;base64,{st.session_state.elf_base64}" style="filter:none;opacity:1;">
+                        </div>
                     </div>
 
                     <div class="mobile-icons">
@@ -727,7 +807,6 @@ elif st.session_state.page == len(stories):
                     </div>
 
                 </div>
-            </div>
 
             """,
             height=1000
@@ -785,15 +864,15 @@ elif st.session_state.page == len(stories):
 
                 <style>
                     .result-root {{
-                    position: relative;
-                    padding: 30px;
+                        position: relative;
+                        padding: 30px;
                     }}
                 </style>
 
                 <div class="result-root" id="result-capture">
 
                 <!-- ===================== 桌機版 ===================== -->
-                <div>
+                <div  id="pc-result-page">
                     <div style="
                         position: relative;
                         padding: 30px;          /* ⭐ 關鍵：安全邊距 */
@@ -831,8 +910,8 @@ elif st.session_state.page == len(stories):
                         color:#333;
                         z-index: 2;
                     ">
-                        <strong>名字：</strong><span style="font-size:24px;">{st.session_state.user_name}</span> <br>
-                        <strong>屬性：</strong><span style="font-size:24px;">{'、'.join(st.session_state.top_attrs)}</span> <br>
+                        <strong>你的名字：</strong><span style="font-size:24px;">{st.session_state.user_name}</span> <br>
+                        <strong>你的屬性：</strong><span style="font-size:24px;">{'、'.join(st.session_state.top_attrs)}</span> <br>
                         <strong>守護精靈主推：</strong><span style="font-size:24px;">{st.session_state.best_elf} | 適配度 {int(round(st.session_state.best_score*100,0))}%</span> <br>
                         <span style="font-size:18px;">（其他推薦：{st.session_state.recommand_sort[1]["elf_name"]} | 適配度 {int(round(st.session_state.recommand_sort[1]["suit_score"]*100,0))}%、{st.session_state.recommand_sort[2]["elf_name"]} | 適配度 {int(round(st.session_state.recommand_sort[2]["suit_score"]*100,0))}%）</span> <br>
 
@@ -945,7 +1024,6 @@ elif st.session_state.page == len(stories):
             <div style="
                 text-align: center;
                 font-size: 16px;
-                color: #555;
                 margin-top: 16px;
             ">
                 重新測驗請直接重整網頁
@@ -962,7 +1040,6 @@ elif st.session_state.page == len(stories):
                 <div style="
                     font-size: 16px;
                     line-height: 1.6;
-                    color: #444;
                     margin-bottom: 1em;
                 ">
                     Released by L.M. Live <br>
