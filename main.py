@@ -782,7 +782,7 @@ elif st.session_state.page == len(stories):
                     <div class="mobile-name">{st.session_state.user_name}<br>{'、'.join(st.session_state.top_attrs)}</div>
 
                     <div class="mobile-main">
-                        守護精靈主推<br>
+                        專屬守護精靈<br>
                         <strong>{st.session_state.best_elf}</strong> | 適配度：{int(round(st.session_state.best_score*100,0))}%
                     </div>
 
@@ -912,7 +912,7 @@ elif st.session_state.page == len(stories):
                     ">
                         <strong>你的名字：</strong><span style="font-size:24px;">{st.session_state.user_name}</span> <br>
                         <strong>你的屬性：</strong><span style="font-size:24px;">{'、'.join(st.session_state.top_attrs)}</span> <br>
-                        <strong>守護精靈主推：</strong><span style="font-size:24px;">{st.session_state.best_elf} | 適配度 {int(round(st.session_state.best_score*100,0))}%</span> <br>
+                        <strong>專屬守護精靈：</strong><span style="font-size:24px;">{st.session_state.best_elf} | 適配度 {int(round(st.session_state.best_score*100,0))}%</span> <br>
                         <span style="font-size:18px;">（其他推薦：{st.session_state.recommand_sort[1]["elf_name"]} | 適配度 {int(round(st.session_state.recommand_sort[1]["suit_score"]*100,0))}%、{st.session_state.recommand_sort[2]["elf_name"]} | 適配度 {int(round(st.session_state.recommand_sort[2]["suit_score"]*100,0))}%）</span> <br>
 
                     </div>
@@ -1044,7 +1044,7 @@ elif st.session_state.page == len(stories):
                 ">
                     Released by L.M. Live <br>
                     Designed & built by Tipsyuu <br>
-                    Visual & assets assisted by AI <br>
+                    Visual & assets assisted by YtsuM and AI <br>
                     Special thanks to Eric and everyone at L.M.
 
                 </div>
